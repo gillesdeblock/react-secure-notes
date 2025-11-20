@@ -39,8 +39,8 @@ export default function LoginForm() {
 
   return (
     <form className="flex flex-col gap-4" id="form-login" onSubmit={handleSubmit(onSubmit)}>
-      <FormInput name="email" control={control}></FormInput>
-      <FormInput name="password" control={control}></FormInput>
+      <FormInput type="email" title="Email" name="email" control={control}></FormInput>
+      <FormInput type="password" title="Password" name="password" control={control}></FormInput>
     </form>
   )
 }
