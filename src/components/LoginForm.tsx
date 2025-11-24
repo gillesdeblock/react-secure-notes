@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 import { zodResolver } from '@hookform/resolvers/zod'
 import FormInput from '@/components/FormInput'
+import useCurrentUser from '@/hooks/useCurrentUser'
 
 const LoginFormSchema = z.object({
   email: z.string().nonempty('Field required'),
@@ -13,6 +14,9 @@ const LoginFormSchema = z.object({
 type LoginFieldValues = z.infer<typeof LoginFormSchema>
 
 export default function LoginForm() {
+  const navigate = useNavigate()
+  const { fetchCurrentUser } = useCurrentUser({ autoload: false })
+
   const { control, handleSubmit } = useForm<z.infer<typeof LoginFormSchema>>({
     resolver: zodResolver(LoginFormSchema),
     defaultValues: {
@@ -20,7 +24,6 @@ export default function LoginForm() {
       password: '',
     },
   })
-  const navigate = useNavigate()
 
   const onSubmit = (data: LoginFieldValues) => {
     async function login() {
@@ -31,6 +34,7 @@ export default function LoginForm() {
       })
       if (response.ok) {
         navigate('/')
+        fetchCurrentUser()
       }
     }
 
@@ -39,7 +43,7 @@ export default function LoginForm() {
 
   return (
     <form className="flex flex-col gap-4" id="form-login" onSubmit={handleSubmit(onSubmit)}>
-      <FormInput type="email" title="Email" name="email" control={control}></FormInput>
+      <FormInput type="text" title="Email" name="email" control={control}></FormInput>
       <FormInput type="password" title="Password" name="password" control={control}></FormInput>
     </form>
   )
