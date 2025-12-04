@@ -11,10 +11,7 @@ export function EditorSaveButton({ onSave, className }: EditorSaveButtonProps) {
   const [editor] = useLexicalComposerContext()
 
   return (
-    <Button
-      className={cn('ml-auto hover:cursor-pointer', className)}
-      onClick={() => onSave(editor)}
-    >
+    <Button className={cn('ml-auto hover:cursor-pointer', className)} onClick={() => onSave(editor)}>
       Save
     </Button>
   )

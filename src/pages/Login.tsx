@@ -1,11 +1,4 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { LoaderCircle } from 'lucide-react'
 import FormInput from '@/components/FormInput'
@@ -17,7 +10,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router'
 import { useState } from 'react'
-import useCurrentUser from '@/hooks/useCurrentUser'
+import { useCurrentUser } from '@/hooks'
 
 type LoginFieldValues = z.infer<typeof LoginFormSchema>
 
@@ -78,21 +71,11 @@ export default () => {
         <CardContent>
           <form className="flex flex-col gap-4" id="form-login" onSubmit={handleSubmit(onSubmit)}>
             <FormInput type="email" title="Email" name="email" control={control}></FormInput>
-            <FormInput
-              type="password"
-              title="Password"
-              name="password"
-              control={control}
-            ></FormInput>
+            <FormInput type="password" title="Password" name="password" control={control}></FormInput>
           </form>
         </CardContent>
         <CardFooter>
-          <Button
-            className="hover:cursor-pointer"
-            type="submit"
-            form="form-login"
-            disabled={!formState.isValid || isLoading}
-          >
+          <Button className="hover:cursor-pointer" type="submit" form="form-login" disabled={!formState.isValid || isLoading}>
             {isLoading && <LoaderCircle className="h-[1.2rem] w-[1.2rem] animate-spin" />}
             Login
           </Button>

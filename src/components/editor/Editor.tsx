@@ -2,15 +2,11 @@ import { LexicalComposer, type InitialConfigType } from '@lexical/react/LexicalC
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary'
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin'
 import { ContentEditable } from '@lexical/react/LexicalContentEditable'
-import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin'
-import { $getRoot, $parseSerializedNode, type LexicalEditor, type SerializedRootNode, type SerializedTextNode } from 'lexical'
-import { TitleNode, type SerializedTitleNode } from '@/components/editor/TitleNode'
+import { type EditorState } from 'lexical'
+import { TitleNode } from '@/components/editor/TitleNode'
 import { TitlePlugin } from '@/components/editor/TitlePlugin'
 import { EditorSaveButton } from './EditorSaveButton'
-import type { Note } from '@/types'
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
-import { useEffect, useState } from 'react'
-import { parseEditorState } from '@/lib/lexical'
+import { EditorInitializationPlugin } from './EditorInitializationPlugin'
 
 const editorConfig: InitialConfigType = {
   namespace: 'editor',
@@ -32,54 +28,28 @@ const editorConfig: InitialConfigType = {
 }
 
 type EditorProps = {
-  title: string
-  content: string
-  onSave: (note: Partial<Note> | null) => void
+  initialContent: string
+  titlePlaceholder?: string
+  onSave: (state: EditorState) => void
 }
 
-const extractNoteContent = (editor: LexicalEditor): Partial<Note> => {
-  const note: Partial<Note> = {
-    title: '',
-    content: '',
-  }
-
-  const { root } = editor.getEditorState().clone().toJSON()
-
-  if (!root.children.length) {
-    return note
-  }
-
-  if (root.children[0]?.type === TitleNode.getType()) {
-    const titleNode = root.children[0] as SerializedTitleNode
-    const textNode = titleNode.children[0] as SerializedTextNode
-    note.title = textNode.text
-  }
-
-  note.content = JSON.stringify(editor.getEditorState().toJSON())
-
-  return note
-}
-
-export default function Editor({ onSave, content }: EditorProps) {
+export default function Editor({ initialContent, titlePlaceholder, onSave }: EditorProps) {
   return (
     <div className="w-full h-full relative">
       <LexicalComposer initialConfig={editorConfig}>
         <div className="relative w-full h-full flex flex-col">
-          <RichTextPlugin
-            placeholder={
-              <div className="absolute inset-0 pointer-events-none">
-                <div className="p-4 text-gray-400 select-none">Type here...</div>
-              </div>
-            }
-            contentEditable={<ContentEditable className="z-10 min-h-[200px] h-full outline-none p-4 bg-transparent" />}
-            ErrorBoundary={LexicalErrorBoundary}
-          />
-          <HistoryPlugin />
-          <TitlePlugin />
-          <InitializeEditorPlugin content={content} />
+          <div className="h-full">
+            <RichTextPlugin
+              placeholder={<EditorPlaceholder />}
+              contentEditable={<EditorContentEditable />}
+              ErrorBoundary={LexicalErrorBoundary}
+            />
+          </div>
+          <EditorInitializationPlugin content={initialContent} />
+          <TitlePlugin placeholder={titlePlaceholder} />
 
           <div className="flex gap-1 p-2 border-t">
-            <EditorSaveButton onSave={(editor) => onSave(extractNoteContent(editor))}></EditorSaveButton>
+            <EditorSaveButton onSave={(editor) => onSave(editor.getEditorState())}></EditorSaveButton>
           </div>
         </div>
       </LexicalComposer>
@@ -87,22 +57,14 @@ export default function Editor({ onSave, content }: EditorProps) {
   )
 }
 
-function InitializeEditorPlugin({ content }: { content?: string }) {
-  const [editor] = useLexicalComposerContext()
+export function EditorContentEditable() {
+  return <ContentEditable className="z-10 min-h-[200px] h-full outline-none p-4 bg-transparent" />
+}
 
-  useEffect(() => {
-    const contentJSON = parseEditorState(content || '')
-    if (contentJSON) {
-      editor.update(() => {
-        try {
-          $getRoot().clear()
-          $getRoot().append(...contentJSON.root.children.map($parseSerializedNode))
-        } catch (error) {
-          console.error('failed to initialize editor', error?.toString())
-        }
-      })
-    }
-  }, [editor])
-
-  return null
+export function EditorPlaceholder() {
+  return (
+    <div className="absolute inset-0 pointer-events-none">
+      <div className="p-4 text-gray-400 select-none">Type here...</div>
+    </div>
+  )
 }

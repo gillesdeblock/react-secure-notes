@@ -1,9 +1,13 @@
 import { useEffect } from 'react'
+import { $getRoot } from 'lexical'
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
-import { $createTextNode, $getRoot } from 'lexical'
 import { $createTitleNode, TitleNode } from '@/components/editor/TitleNode'
 
-export function TitlePlugin() {
+type TitlePluginProps = {
+  placeholder?: string
+}
+
+export function TitlePlugin({ placeholder }: TitlePluginProps) {
   const [editor] = useLexicalComposerContext()
 
   useEffect(() => {
@@ -11,13 +15,11 @@ export function TitlePlugin() {
       if ($getRoot().getFirstChild()?.getType() === TitleNode.getType()) {
         return
       }
-      const node = $createTitleNode()
       if ($getRoot().getChildrenSize() > 0) {
         const el = $getRoot().getFirstChild()
-        el?.insertBefore(node)
+        el?.insertBefore($createTitleNode(undefined, placeholder))
       } else {
-        $getRoot().append(node)
-        $getRoot().append($createTextNode())
+        $getRoot().append($createTitleNode(undefined, placeholder))
       }
     })
   }, [editor])

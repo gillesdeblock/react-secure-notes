@@ -2,12 +2,12 @@ import http from '@/lib/http'
 import { resolveUnauthorized } from '@/lib/auth'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { useDispatch } from 'react-redux'
+import { useAppDispatch } from '@/hooks'
 import { setUser } from '@/reducers/auth.slice'
 
-export default function useCurrentUser({ autoload = true } = {}) {
+export function useCurrentUser({ autoload = true } = {}) {
   const navigate = useNavigate()
-  const dispatch = useDispatch()
+  const dispatch = useAppDispatch()
   const [currentUser, setCurrentUser] = useState(null)
 
   async function fetchCurrentUser(): Promise<void>

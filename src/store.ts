@@ -1,13 +1,16 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit'
-import authReducer from './reducers/auth.slice'
-import noteReducer from './reducers/note.slice'
+import { auth } from '@/reducers/auth.slice'
+import { notes } from '@/reducers/notes.slice'
+import { notesApi } from '@/reducers/notes.api'
 
-const store = configureStore({
+export const store = configureStore({
   reducer: combineReducers({
-    auth: authReducer,
-    note: noteReducer,
+    auth: auth.reducer,
+    notes: notes.reducer,
+    [notesApi.reducerPath]: notesApi.reducer,
   }),
-  devTools: true,
+  middleware: (getDefaultMiddleWare) => getDefaultMiddleWare().concat(notesApi.middleware),
 })
 
-export default store
+export type RootState = ReturnType<typeof store.getState>
+export type AppDispatch = typeof store.dispatch

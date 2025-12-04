@@ -3,4 +3,7 @@ export type Note = {
   title: string
   content: string
   version?: number
+
+  createdAt?: string
+  updatedAt?: string
 }

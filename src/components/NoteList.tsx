@@ -6,20 +6,28 @@ import { cn } from '@/lib/utils'
 
 type NoteListProps = React.ComponentProps<'div'> & {
   notes: NoteType[]
-  selectedNoteId?: string
+  selectedNoteId?: string | null
 }
 
 export default function NoteList({ notes = [], selectedNoteId, ...props }: NoteListProps) {
-  const itemHighlight = (noteId: string) => selectedNoteId === noteId
+  const isItemHighlighted = (noteId: string) => selectedNoteId === noteId
 
   return (
     <div className={cn('flex flex-col gap-2 min-w-68 max-w-96', props.className)}>
-      {notes.map((note, index) => (
-        <React.Fragment>
-          {index > 0 && <Separator orientation="horizontal" className="ml-3 mr-3 data-[orientation=horizontal]:w-auto" />}
-          <NoteListItem key={note.id} note={note} highlight={itemHighlight(note.id)} />
-        </React.Fragment>
-      ))}
+      {[...notes]
+        .sort((a, b) => {
+          const ta = a.updatedAt ? Date.parse(a.updatedAt) : 0
+          const tb = b.updatedAt ? Date.parse(b.updatedAt) : 0
+          const na = Number.isNaN(ta) ? 0 : ta
+          const nb = Number.isNaN(tb) ? 0 : tb
+          return nb - na
+        })
+        .map((note, index) => (
+          <React.Fragment key={note.id}>
+            {index > 0 && <Separator orientation="horizontal" className="ml-3 mr-3 data-[orientation=horizontal]:w-auto" />}
+            <NoteListItem note={note} highlight={isItemHighlighted(note.id)} />
+          </React.Fragment>
+        ))}
     </div>
   )
 }

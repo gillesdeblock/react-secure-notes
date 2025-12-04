@@ -25,10 +25,15 @@ export const isSerializedEditorState = (value: any): value is SerializedEditorSt
 
 export const parseEditorState = (state: string): SerializedEditorState | null => {
   try {
+    if (!state) {
+      return null
+    }
+
     const parsed = JSON.parse(state)
     if (isSerializedEditorState(parsed)) {
       return parsed
     }
+
     return null
   } catch (error) {
     console.warn(error instanceof Error ? error.message : `could not parse editor state '${state}'`)
