@@ -1,4 +1,6 @@
-const DAY_MS = 1000 * 60 * 60 * 24
+export function isSameDay(a: Date, b: Date) {
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate()
+}
 
 export const dateTimeFormat = (date: Date | string, locales?: Intl.LocalesArgument) => {
   let unix: number = 0
@@ -11,7 +13,7 @@ export const dateTimeFormat = (date: Date | string, locales?: Intl.LocalesArgume
     unix = Number.isNaN(parsed) ? 0 : parsed
   }
 
-  if (Date.now() - unix < DAY_MS) {
+  if (isSameDay(new Date(), new Date(date))) {
     options.hour = '2-digit'
     options.minute = '2-digit'
     options.second = '2-digit'

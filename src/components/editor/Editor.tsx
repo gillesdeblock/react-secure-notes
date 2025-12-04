@@ -2,16 +2,15 @@ import { LexicalComposer, type InitialConfigType } from '@lexical/react/LexicalC
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary'
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin'
 import { ContentEditable } from '@lexical/react/LexicalContentEditable'
-import { type EditorState } from 'lexical'
-import { TitleNode } from '@/components/editor/TitleNode'
-import { TitlePlugin } from '@/components/editor/TitlePlugin'
+import { type EditorState, type LexicalEditor } from 'lexical'
 import { EditorSaveButton } from './EditorSaveButton'
-import { EditorInitializationPlugin } from './EditorInitializationPlugin'
+import { EditorInitPlugin } from './EditorInitPlugin'
+import { HeadingNode } from '@lexical/rich-text'
 
 const editorConfig: InitialConfigType = {
   namespace: 'editor',
   editable: true,
-  nodes: [TitleNode],
+  nodes: [HeadingNode],
 
   onError: (err: Error) => {
     throw err
@@ -19,6 +18,9 @@ const editorConfig: InitialConfigType = {
 
   theme: {
     paragraph: 'mb-2',
+    heading: {
+      h1: 'text-3xl font-bold mb-3',
+    },
     text: {
       bold: 'font-semibold',
       italic: 'italic',
@@ -30,26 +32,27 @@ const editorConfig: InitialConfigType = {
 type EditorProps = {
   initialContent: string
   titlePlaceholder?: string
-  onSave: (state: EditorState) => void
+  onSave: (state: LexicalEditor) => void
 }
 
-export default function Editor({ initialContent, titlePlaceholder, onSave }: EditorProps) {
+export default function Editor({ initialContent, onSave }: EditorProps) {
   return (
     <div className="w-full h-full relative">
       <LexicalComposer initialConfig={editorConfig}>
         <div className="relative w-full h-full flex flex-col">
-          <div className="h-full">
-            <RichTextPlugin
-              placeholder={<EditorPlaceholder />}
-              contentEditable={<EditorContentEditable />}
-              ErrorBoundary={LexicalErrorBoundary}
-            />
-          </div>
-          <EditorInitializationPlugin content={initialContent} />
-          <TitlePlugin placeholder={titlePlaceholder} />
+          <RichTextPlugin
+            contentEditable={
+              <div className="h-full">
+                <EditorContentEditable />
+              </div>
+            }
+            placeholder={<EditorPlaceholder />}
+            ErrorBoundary={LexicalErrorBoundary}
+          />
+          <EditorInitPlugin content={initialContent} />
 
           <div className="flex gap-1 p-2 border-t">
-            <EditorSaveButton onSave={(editor) => onSave(editor.getEditorState())}></EditorSaveButton>
+            <EditorSaveButton onSave={onSave}></EditorSaveButton>
           </div>
         </div>
       </LexicalComposer>

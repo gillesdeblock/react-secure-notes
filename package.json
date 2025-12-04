@@ -11,7 +11,9 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
+    "@lexical/headless": "^0.38.2",
     "@lexical/react": "^0.38.2",
+    "@lexical/rich-text": "^0.38.2",
     "@radix-ui/react-dropdown-menu": "^2.1.16",
     "@radix-ui/react-label": "^2.1.8",
     "@radix-ui/react-menubar": "^1.1.16",

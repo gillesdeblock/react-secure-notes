@@ -20,16 +20,16 @@ export const notesApi = createApi({
       }),
     }),
 
-    createNote: build.mutation<Note, { title?: string; content?: string }>({
-      query: ({ title = '', content = '' }) => ({
+    createNote: build.mutation<Note, { title?: string; content?: string; short?: string }>({
+      query: ({ title = '', content = '', short = '' }) => ({
         method: 'POST',
         url: '/notes',
-        body: { title, content },
+        body: { title, content, short },
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
       }),
     }),
-    updateNote: build.mutation<Note, { id: string; title?: string | null; content?: string | null }>({
+    updateNote: build.mutation<Note, { id: string; title?: string | null; content?: string | null; short?: string | null }>({
       query: ({ id, ...patch }) => ({
         method: 'PUT',
         url: `/notes/${id}`,
