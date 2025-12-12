@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
 import { $createHeadingNode } from '@lexical/rich-text'
 import { $createParagraphNode, $getRoot, RootNode } from 'lexical'
-import { safeParseEditorState } from '@/types/editor'
+import { safeParseEditorState } from '@/lib/editor'
 
 export function EditorInitPlugin({ content }: { content?: string }) {
   const [editor] = useLexicalComposerContext()

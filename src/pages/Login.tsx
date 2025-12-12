@@ -1,23 +1,21 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { LoaderCircle } from 'lucide-react'
+import z from 'zod'
 import FormInput from '@/components/FormInput'
 import LoginFormSchema from '@/schemas/LoginForm'
-import z from 'zod'
-import http from '@/lib/http'
 import { toast } from 'sonner'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router'
-import { useState } from 'react'
-import { useCurrentUser } from '@/hooks'
+import { useGetCurrentUserQuery, useLoginMutation } from '@/reducers/auth.api'
 
 type LoginFieldValues = z.infer<typeof LoginFormSchema>
 
 export default () => {
   const navigate = useNavigate()
-  const [isLoading, setIsLoading] = useState(false)
-  const { fetchCurrentUser } = useCurrentUser({ autoload: false })
+  const { refetch: refetchCurrentUser } = useGetCurrentUserQuery()
+  const [login, { isLoading: isLoginPending }] = useLoginMutation()
 
   const { control, handleSubmit, formState } = useForm<z.infer<typeof LoginFormSchema>>({
     resolver: zodResolver(LoginFormSchema),
@@ -28,32 +26,17 @@ export default () => {
     },
   })
 
-  const onSubmit = (data: LoginFieldValues) => {
-    let cancelled = false
-    register()
+  const onSubmit = async (data: LoginFieldValues) => {
+    const res = await login(data)
 
-    async function register() {
-      setIsLoading(true)
-      const response = await http('http://localhost:3000/auth/login', {
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers: { 'Content-Type': 'application/json' },
-      })
-      setIsLoading(false)
-      if (cancelled) {
-        return
-      }
-      if (response.ok) {
-        navigate('/')
-        fetchCurrentUser()
-      } else {
-        toast.error('Login failed.', { richColors: true })
-      }
+    if ('error' in res) {
+      toast.error('Login failed', { richColors: true })
+      return
     }
 
-    return () => {
-      cancelled = true
-    }
+    toast.success('Logged in')
+    await refetchCurrentUser()
+    navigate('/')
   }
 
   return (
@@ -75,8 +58,8 @@ export default () => {
           </form>
         </CardContent>
         <CardFooter>
-          <Button className="hover:cursor-pointer" type="submit" form="form-login" disabled={!formState.isValid || isLoading}>
-            {isLoading && <LoaderCircle className="h-[1.2rem] w-[1.2rem] animate-spin" />}
+          <Button className="hover:cursor-pointer" type="submit" form="form-login" disabled={!formState.isValid || isLoginPending}>
+            {isLoginPending && <LoaderCircle className="h-[1.2rem] w-[1.2rem] animate-spin" />}
             Login
           </Button>
         </CardFooter>

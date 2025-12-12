@@ -2,10 +2,11 @@ import { LexicalComposer, type InitialConfigType } from '@lexical/react/LexicalC
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary'
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin'
 import { ContentEditable } from '@lexical/react/LexicalContentEditable'
-import { type EditorState, type LexicalEditor } from 'lexical'
+import { type LexicalEditor } from 'lexical'
 import { EditorSaveButton } from './EditorSaveButton'
 import { EditorInitPlugin } from './EditorInitPlugin'
 import { HeadingNode } from '@lexical/rich-text'
+import ToolbarPlugin from './ToolbarPlugin'
 
 const editorConfig: InitialConfigType = {
   namespace: 'editor',
@@ -19,7 +20,12 @@ const editorConfig: InitialConfigType = {
   theme: {
     paragraph: 'mb-2',
     heading: {
-      h1: 'text-3xl font-bold mb-3',
+      h1: 'text-4xl font-bold mb-4',
+      h2: 'text-2xl font-bold mb-4',
+      h3: 'text-xl font-bold mb-4',
+      h4: 'text-lg font-bold mb-4',
+      h5: 'text-base font-semibold mb-2',
+      h6: 'text-base text-gray-400 font-semibold mb-2',
     },
     text: {
       bold: 'font-semibold',
@@ -31,32 +37,30 @@ const editorConfig: InitialConfigType = {
 
 type EditorProps = {
   initialContent: string
-  titlePlaceholder?: string
   onSave: (state: LexicalEditor) => void
 }
 
 export default function Editor({ initialContent, onSave }: EditorProps) {
   return (
-    <div className="w-full h-full relative">
-      <LexicalComposer initialConfig={editorConfig}>
-        <div className="relative w-full h-full flex flex-col">
+    <LexicalComposer initialConfig={editorConfig}>
+      <div className="w-full h-full flex flex-col text-gray-">
+        <ToolbarPlugin />
+
+        <div className="relative h-full">
           <RichTextPlugin
-            contentEditable={
-              <div className="h-full">
-                <EditorContentEditable />
-              </div>
-            }
+            contentEditable={<EditorContentEditable />}
             placeholder={<EditorPlaceholder />}
             ErrorBoundary={LexicalErrorBoundary}
           />
-          <EditorInitPlugin content={initialContent} />
-
-          <div className="flex gap-1 p-2 border-t">
-            <EditorSaveButton onSave={onSave}></EditorSaveButton>
-          </div>
         </div>
-      </LexicalComposer>
-    </div>
+
+        <div className="flex gap-1 p-2 border-t">
+          <EditorSaveButton onSave={onSave}></EditorSaveButton>
+        </div>
+
+        <EditorInitPlugin content={initialContent} />
+      </div>
+    </LexicalComposer>
   )
 }
 

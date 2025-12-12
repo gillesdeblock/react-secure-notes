@@ -1,11 +1,10 @@
 import { Button } from '@/components/ui/button'
 import { NotebookPenIcon } from 'lucide-react'
-import { useCreateNoteMutation, useLazyGetNotesQuery } from '@/reducers/notes.api'
+import { useCreateNoteMutation } from '@/reducers/notes.api'
 import { toast } from 'sonner'
 
 export function NoteCreateButton(props: React.ComponentProps<typeof Button>) {
   const [createNote] = useCreateNoteMutation()
-  const [getNotesLazy] = useLazyGetNotesQuery()
 
   const onClick = async () => {
     try {
@@ -14,7 +13,6 @@ export function NoteCreateButton(props: React.ComponentProps<typeof Button>) {
     } catch (error) {
       toast.error('Failed to create note.', { richColors: true })
     }
-    getNotesLazy()
   }
 
   return (
