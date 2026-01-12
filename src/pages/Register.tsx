@@ -1,11 +1,4 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { LoaderCircle } from 'lucide-react'
 import FormInput from '@/components/FormInput'
@@ -39,7 +32,7 @@ export default () => {
 
     async function register() {
       setIsLoading(true)
-      const response = await http('http://localhost:3000/auth/register', {
+      const response = await http(`${import.meta.env.VITE_SECURE_NOTES_API}/auth/register`, {
         method: 'POST',
         body: JSON.stringify(data),
         headers: { 'Content-Type': 'application/json' },
@@ -68,33 +61,14 @@ export default () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form
-            className="flex flex-col gap-4"
-            id="form-register"
-            onSubmit={handleSubmit(onSubmit)}
-          >
+          <form className="flex flex-col gap-4" id="form-register" onSubmit={handleSubmit(onSubmit)}>
             <FormInput type="email" title="Email" name="email" control={control}></FormInput>
-            <FormInput
-              type="password"
-              title="Password"
-              name="password"
-              control={control}
-            ></FormInput>
-            <FormInput
-              type="password"
-              name="passwordRepeat"
-              title="Repeat your password"
-              control={control}
-            ></FormInput>
+            <FormInput type="password" title="Password" name="password" control={control}></FormInput>
+            <FormInput type="password" name="passwordRepeat" title="Repeat your password" control={control}></FormInput>
           </form>
         </CardContent>
         <CardFooter>
-          <Button
-            className="hover:cursor-pointer"
-            type="submit"
-            form="form-register"
-            disabled={!formState.isValid || isLoading}
-          >
+          <Button className="hover:cursor-pointer" type="submit" form="form-register" disabled={!formState.isValid || isLoading}>
             {isLoading && <LoaderCircle className="h-[1.2rem] w-[1.2rem] animate-spin" />}
             Register
           </Button>
