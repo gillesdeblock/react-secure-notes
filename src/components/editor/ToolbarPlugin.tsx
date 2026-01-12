@@ -17,7 +17,6 @@ import {
   type LexicalCommand,
   ParagraphNode,
   $createParagraphNode,
-  TextNode,
   $isTextNode,
 } from 'lexical'
 import { useCallback, useEffect, useRef, useState } from 'react'

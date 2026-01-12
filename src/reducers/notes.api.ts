@@ -9,7 +9,7 @@ const schemes = {
 export const notesApi = createApi({
   reducerPath: 'notesAPI',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'http://localhost:3000',
+    baseUrl: import.meta.env.VITE_SECURE_NOTES_API,
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
   }),

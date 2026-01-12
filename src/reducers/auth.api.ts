@@ -2,7 +2,7 @@ import type { User } from '@/types'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: 'http://localhost:3000',
+  baseUrl: import.meta.env.VITE_SECURE_NOTES_API,
   headers: {
     'Content-Type': 'application/json',
   },
