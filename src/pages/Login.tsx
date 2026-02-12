@@ -9,11 +9,14 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router'
 import { useGetCurrentUserQuery, useLoginMutation } from '@/reducers/auth.api'
+import { notesApi } from '@/reducers/notes.api'
+import { useAppDispatch } from '@/hooks'
 
 type LoginFieldValues = z.infer<typeof LoginFormSchema>
 
 export default () => {
   const navigate = useNavigate()
+  const dispatch = useAppDispatch()
   const { refetch: refetchCurrentUser } = useGetCurrentUserQuery()
   const [login, { isLoading: isLoginPending }] = useLoginMutation()
 
@@ -35,6 +38,7 @@ export default () => {
     }
 
     toast.success('Logged in')
+    dispatch(notesApi.util.resetApiState())
     await refetchCurrentUser()
     navigate('/')
   }

@@ -19,10 +19,10 @@ import {
   $createParagraphNode,
   $isTextNode,
 } from 'lexical'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ButtonGroup } from '@/components/ui/button-group'
 import { $createHeadingNode, $isHeadingNode, HeadingNode, type HeadingTagType } from '@lexical/rich-text'
-import { objectifyStyleString, uniquePrimitiveArray } from '@/lib/utils'
+import { getStyleProperty, uniquePrimitiveArray } from '@/lib/utils'
 import { Separator } from '../ui/separator'
 import { ReplaceNodeSelect } from './ReplaceNodeSelect'
 import { CommandButton } from './CommandButton'
@@ -52,23 +52,15 @@ export default function ToolbarPlugin() {
   const [editor] = useLexicalComposerContext()
   const toolbarRef = useRef(null)
 
-  const [selectionBlockNodeTypes, setSelectionBlockNodeTypes] = useState<string[]>([])
+  const [replaceNodeSelectLabel, setReplaceNodeSelectLabel] = useState<string>()
   const [canUndo, setCanUndo] = useState(false)
   const [canRedo, setCanRedo] = useState(false)
   const [isBold, setIsBold] = useState(false)
   const [isItalic, setIsItalic] = useState(false)
   const [isUnderline, setIsUnderline] = useState(false)
   const [isStrikethrough, setIsStrikethrough] = useState(false)
-  const [selectionComputedStyle, setSelectionComputedStyle] = useState<Record<string, string>>({})
-
-  let currentFontFamily = selectionComputedStyle?.['font-family']
-
-  if (!currentFontFamily) {
-    const domSelection = window.getSelection()
-    const el = domSelection?.anchorNode?.parentElement
-    const computedStyle = (el && getComputedStyle(el)) || null
-    if (computedStyle?.fontFamily) currentFontFamily = computedStyle.fontFamily.split(',')[0].trim()
-  }
+  const [fontTypeSelectLabel, setFontTypeSelectLabel] = useState<string>()
+  const [cursorFont, setCursorFont] = useState<string>('Arial')
 
   const $getSelectionBlockNodes = () => {
     try {
@@ -92,27 +84,34 @@ export default function ToolbarPlugin() {
     }
   }
 
-  const $updateToolbar = useCallback(() => {
+  const $updateToolbar = () => {
     const selection = $getSelection()
+
     if ($isRangeSelection(selection)) {
       setIsBold(selection.hasFormat('bold'))
       setIsItalic(selection.hasFormat('italic'))
       setIsUnderline(selection.hasFormat('underline'))
       setIsStrikethrough(selection.hasFormat('strikethrough'))
 
-      const computedStyle = objectifyStyleString(selection.anchor.getNode().getStyle())
-      setSelectionComputedStyle(computedStyle)
+      const getReplaceNodeKey = (node: LexicalNode) => ($isHeadingNode(node) ? node.getType() + '-' + node.getTag() : node.getType())
 
-      const selectionBlockNodeTypes = $getSelectionBlockNodes()
-        .map((node) => {
-          const key = $isHeadingNode(node) ? node.getType() + '-' + node.getTag() : node.getType()
-          return REPLACE_NODE_OPTIONS.find((option) => option.key === key)?.label
-        })
-        .filter((value) => typeof value !== 'undefined')
+      const nodes = selection.getNodes()
+      const parentNodes = nodes.map((node) => ($isTextNode(node) ? node.getParent() : node)).filter((node) => !!node)
+      const fonts = uniquePrimitiveArray(nodes.filter($isTextNode).map((node) => getStyleProperty(node.getStyle(), 'font-family')))
+      const types = uniquePrimitiveArray(
+        parentNodes.map((node) => REPLACE_NODE_OPTIONS.find(({ key }) => key === getReplaceNodeKey(node))?.label),
+      )
 
-      setSelectionBlockNodeTypes(uniquePrimitiveArray(selectionBlockNodeTypes))
+      setReplaceNodeSelectLabel(types.length > 1 ? 'Mixed' : types[0] || undefined)
+
+      if (fonts.length > 1) {
+        setFontTypeSelectLabel('Mixed')
+      } else {
+        setFontTypeSelectLabel(fonts[0] || cursorFont)
+        if (fonts[0]) setCursorFont(fonts[0])
+      }
     }
-  }, [])
+  }
 
   const onSetFontFamilyCommand = (font: string) => {
     editor.update(() => {
@@ -122,6 +121,7 @@ export default function ToolbarPlugin() {
         for (const node of nodes) {
           if ($isTextNode(node)) {
             node.setStyle(`font-family: ${font}`)
+            node.getParent()?.setStyle(`font-family: ${font}`)
           }
         }
       }
@@ -190,22 +190,8 @@ export default function ToolbarPlugin() {
       <Separator orientation="vertical" />
 
       <FontTypeSelect
-        options={[
-          'sans-serif',
-          'Georgia',
-          'Cambria',
-          'Times New Roman',
-          'Times',
-          'serif',
-          'SFMono-Regular',
-          'Menlo',
-          'Monaco',
-          'Consolas',
-          'Liberation Mono',
-          'Courier New',
-          'monospace',
-        ]}
-        triggerLabel={currentFontFamily}
+        options={['Arial', 'Helvetica', 'Verdana', 'Times New Roman', 'Georgia', 'Cambria', 'Courier New', 'Menlo', 'Monaco', 'Pacifico']}
+        triggerLabel={fontTypeSelectLabel}
         onValueChange={(e) => editor.dispatchCommand(SET_FONT_FAMILY_COMMAND, e)}
       />
 
@@ -213,7 +199,7 @@ export default function ToolbarPlugin() {
 
       <ReplaceNodeSelect
         options={REPLACE_NODE_OPTIONS}
-        triggerLabel={selectionBlockNodeTypes.join(', ')}
+        triggerLabel={replaceNodeSelectLabel}
         onValueChange={(value) => editor.dispatchCommand(CHANGE_TYPE_COMMAND, value)}
       />
 

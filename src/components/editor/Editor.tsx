@@ -43,7 +43,7 @@ type EditorProps = {
 export default function Editor({ initialContent, onSave }: EditorProps) {
   return (
     <LexicalComposer initialConfig={editorConfig}>
-      <div className="w-full h-full flex flex-col text-gray-">
+      <div className="w-full h-full flex flex-col font-[Arial]">
         <ToolbarPlugin />
 
         <div className="relative h-full">

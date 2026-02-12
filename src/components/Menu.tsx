@@ -3,10 +3,18 @@ import { Button } from '@/components/ui/button'
 import { Menubar, MenubarContent, MenubarMenu, MenubarTrigger, MenubarItem } from '@/components/ui/menubar'
 import { useGetCurrentUserQuery, useLogoutMutation } from '@/reducers/auth.api'
 import DarkModeToggle from '@/components/DarkModeToggle'
+import { notesApi } from '@/reducers/notes.api'
+import { useAppDispatch } from '@/hooks'
 
 export default function Menu({ className, ...props }: React.ComponentProps<typeof Menubar>) {
   const { data: user } = useGetCurrentUserQuery()
+  const dispatch = useAppDispatch()
   const [logout] = useLogoutMutation()
+
+  const onLogout = () => {
+    dispatch(notesApi.util.resetApiState())
+    logout()
+  }
 
   return (
     <Menubar className={cn('p-2', className)} {...props}>
@@ -22,7 +30,7 @@ export default function Menu({ className, ...props }: React.ComponentProps<typeo
                 </Button>
               </MenubarTrigger>
               <MenubarContent>
-                <MenubarItem onClick={() => logout()}>Logout</MenubarItem>
+                <MenubarItem onClick={onLogout}>Logout</MenubarItem>
               </MenubarContent>
             </>
           )}

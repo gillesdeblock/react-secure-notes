@@ -20,7 +20,7 @@ function App() {
           </Routes>
         </div>
       </AuthGate>
-      <Toaster position="top-center" />
+      <Toaster position="top-right" />
     </ThemeProvider>
   )
 }

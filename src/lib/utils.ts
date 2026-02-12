@@ -14,6 +14,12 @@ export function appendStyleProperties(style: string | Record<string, string>, pr
   return stringifyStyleObject({ ...target, ...props })
 }
 
+export function getStyleProperty(style: string, property: string) {
+  const regex = new RegExp(`${property}\s*:\s*([^;]+);?`, 'i')
+  const matches = style.match(regex)
+  return matches?.[1] ? matches[1].trim() : undefined
+}
+
 export function objectifyStyleString(style: string): Record<string, string> {
   return Object.fromEntries(
     style
