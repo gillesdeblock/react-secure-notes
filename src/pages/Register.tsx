@@ -4,17 +4,21 @@ import { LoaderCircle } from 'lucide-react'
 import FormInput from '@/components/FormInput'
 import RegisterFormSchema from '@/schemas/RegisterForm'
 import z from 'zod'
-import http from '@/lib/http'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router'
-import { useState } from 'react'
+import { toast } from 'sonner'
+import { useLazyGetCurrentUserQuery, useRegisterMutation } from '@/reducers/auth.api'
+import { notesApi } from '@/reducers/notes.api'
+import { useAppDispatch } from '@/hooks'
 
 type RegisterFieldValues = z.infer<typeof RegisterFormSchema>
 
-export default () => {
+export const Register = () => {
   const navigate = useNavigate()
-  const [isLoading, setIsLoading] = useState(false)
+  const dispatch = useAppDispatch()
+  const [getCurrentUser] = useLazyGetCurrentUserQuery()
+  const [register, { isLoading: isRegistrationPending }] = useRegisterMutation()
 
   const { control, handleSubmit, formState } = useForm<z.infer<typeof RegisterFormSchema>>({
     resolver: zodResolver(RegisterFormSchema),
@@ -26,26 +30,18 @@ export default () => {
     },
   })
 
-  const onSubmit = (data: RegisterFieldValues) => {
-    let cancelled = false
-    register()
+  const onSubmit = async (data: RegisterFieldValues) => {
+    const res = await register(data)
 
-    async function register() {
-      setIsLoading(true)
-      const response = await http(`${import.meta.env.VITE_SECURE_NOTES_API}/auth/register`, {
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers: { 'Content-Type': 'application/json' },
-      })
-      setIsLoading(false)
-      if (!cancelled && response.ok) {
-        navigate('/')
-      }
+    if ('error' in res) {
+      toast.error('Registration failed', { richColors: true })
+      return
     }
 
-    return () => {
-      cancelled = true
-    }
+    toast.success('User created')
+    dispatch(notesApi.util.resetApiState())
+    await getCurrentUser()
+    navigate('/')
   }
 
   return (
@@ -68,8 +64,13 @@ export default () => {
           </form>
         </CardContent>
         <CardFooter>
-          <Button className="hover:cursor-pointer" type="submit" form="form-register" disabled={!formState.isValid || isLoading}>
-            {isLoading && <LoaderCircle className="h-[1.2rem] w-[1.2rem] animate-spin" />}
+          <Button
+            className="hover:cursor-pointer"
+            type="submit"
+            form="form-register"
+            disabled={!formState.isValid || isRegistrationPending}
+          >
+            {isRegistrationPending && <LoaderCircle className="h-[1.2rem] w-[1.2rem] animate-spin" />}
             Register
           </Button>
         </CardFooter>

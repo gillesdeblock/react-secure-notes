@@ -1,6 +1,7 @@
 import type { Note } from '@/types'
 import * as z from 'zod'
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import { createApi } from '@reduxjs/toolkit/query/react'
+import { fetchAuthBaseQuery } from '@/lib/auth'
 
 const schemes = {
   'delete-notes': z.object({ deleted: z.number() }),
@@ -8,11 +9,7 @@ const schemes = {
 
 export const notesApi = createApi({
   reducerPath: 'notesAPI',
-  baseQuery: fetchBaseQuery({
-    baseUrl: import.meta.env.VITE_SECURE_NOTES_API,
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
-  }),
+  baseQuery: fetchAuthBaseQuery(),
   endpoints: (build) => ({
     getNotes: build.query<Note[], void>({
       query: () => ({

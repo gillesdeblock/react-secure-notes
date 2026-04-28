@@ -17,7 +17,8 @@ export default function NoteEdit(props: React.ComponentProps<'div'>) {
     try {
       const extracted = extractNoteContent(editor)
       await updateNote({ id: note.id, ...extracted }).unwrap()
-      toast.success(<span>Saved note {note.title}.</span>, { richColors: true })
+      const el = () => <span>Saved note {note.title}.</span>
+      toast.success(el, { richColors: true })
       getNotesLazy()
     } catch (error) {
       toast.error(<span>Failed to save Note {note.title}.</span>, { richColors: true })

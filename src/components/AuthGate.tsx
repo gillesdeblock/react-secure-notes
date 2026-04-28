@@ -3,7 +3,7 @@ import { Loader2Icon } from 'lucide-react'
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router'
 
-export function AuthGate({ children }: React.PropsWithChildren<any>) {
+export function AuthGate({ children }: React.PropsWithChildren) {
   const navigate = useNavigate()
   const { isLoading, isError } = useGetCurrentUserQuery()
 

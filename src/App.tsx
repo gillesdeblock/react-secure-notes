@@ -2,9 +2,9 @@ import { ThemeProvider } from '@/providers/ThemeProvider'
 import Menu from '@/components/Menu'
 import { Route, Routes } from 'react-router'
 import { Toaster } from 'sonner'
-import Login from '@/pages/Login.tsx'
-import Register from '@/pages/Register.tsx'
-import Dashboard from '@/pages/Dashboard.tsx'
+import { Login } from '@/pages/Login.tsx'
+import { Register } from '@/pages/Register.tsx'
+import { Dashboard } from '@/pages/Dashboard.tsx'
 import { AuthGate } from './components/AuthGate'
 
 function App() {

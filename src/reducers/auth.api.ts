@@ -1,33 +1,10 @@
 import type { User } from '@/types'
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-
-const baseQuery = fetchBaseQuery({
-  baseUrl: import.meta.env.VITE_SECURE_NOTES_API,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  credentials: 'include',
-})
-
-const baseQueryWithReauth: typeof baseQuery = async (args, api, extraOptions) => {
-  let res = await baseQuery(args, api, extraOptions)
-
-  if (res.meta?.response?.status !== 401) {
-    return res
-  }
-
-  const refresh = await baseQuery({ url: '/auth/refresh', method: 'POST' }, api, extraOptions)
-
-  if (refresh?.error?.status !== 401) {
-    return baseQuery(args, api, extraOptions)
-  }
-
-  return res
-}
+import { fetchAuthBaseQuery } from '@/lib/auth'
+import { createApi } from '@reduxjs/toolkit/query/react'
 
 export const authApi = createApi({
   reducerPath: 'authAPI',
-  baseQuery: baseQueryWithReauth,
+  baseQuery: fetchAuthBaseQuery(),
   tagTypes: ['current-user'],
   endpoints: (build) => ({
     getCurrentUser: build.query<User, void>({
@@ -52,7 +29,7 @@ export const authApi = createApi({
         queryFulfilled.finally(() => dispatch(authApi.util.resetApiState()))
       },
     }),
-    register: build.mutation<User, { email: User['email']; password: string }>({
+    register: build.mutation<void, { email: User['email']; password: string }>({
       query: (credentials) => ({
         url: '/auth/register',
         method: 'POST',

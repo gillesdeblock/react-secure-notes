@@ -1,10 +1,30 @@
-import type { NavigateFunction } from 'react-router'
-import http from './http'
+import { fetchBaseQuery, type BaseQueryFn, type FetchBaseQueryError, type FetchBaseQueryMeta } from '@reduxjs/toolkit/query'
 
-export async function resolveUnauthorized(navigate: NavigateFunction) {
-  const response = await http(`${import.meta.env.VITE_SECURE_NOTES_API}/auth/refresh`, { method: 'POST' })
+type AuthBaseQuery = BaseQueryFn<any, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>
 
-  if (!response.ok) {
-    navigate('/login')
+export const withTokenRefresh = (baseQuery: AuthBaseQuery): AuthBaseQuery => {
+  return async (args, api, extraOptions) => {
+    let res = await baseQuery(args, api, extraOptions)
+
+    if (res.meta?.response?.status !== 401) {
+      return res
+    }
+
+    const refresh = await baseQuery({ url: '/auth/refresh', method: 'POST' }, api, extraOptions)
+
+    if (refresh?.error?.status !== 401) {
+      return baseQuery(args, api, extraOptions)
+    }
+
+    return res
   }
 }
+
+export const fetchAuthBaseQuery = () =>
+  withTokenRefresh(
+    fetchBaseQuery({
+      baseUrl: import.meta.env.VITE_SECURE_NOTES_API,
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+    }),
+  )

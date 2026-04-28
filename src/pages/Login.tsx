@@ -14,7 +14,7 @@ import { useAppDispatch } from '@/hooks'
 
 type LoginFieldValues = z.infer<typeof LoginFormSchema>
 
-export default () => {
+export const Login = () => {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const { refetch: refetchCurrentUser } = useGetCurrentUserQuery()

@@ -3,7 +3,7 @@ import NoteEdit from '@/components/NoteEdit'
 import { Notes } from '@/components/Notes'
 import { Separator } from '@/components/ui/separator'
 
-export default () => {
+export const Dashboard = () => {
   return (
     <Page className="flex">
       <Notes />
