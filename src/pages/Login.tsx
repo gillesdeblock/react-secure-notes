@@ -11,6 +11,7 @@ import { Link, useNavigate } from 'react-router'
 import { useGetCurrentUserQuery, useLoginMutation } from '@/reducers/auth.api'
 import { notesApi } from '@/reducers/notes.api'
 import { useAppDispatch } from '@/hooks'
+import { setAccessToken } from '@/reducers/auth.slice'
 
 type LoginFieldValues = z.infer<typeof LoginFormSchema>
 
@@ -38,6 +39,7 @@ export const Login = () => {
     }
 
     toast.success('Logged in')
+    dispatch(setAccessToken(res.data.accessToken))
     dispatch(notesApi.util.resetApiState())
     await refetchCurrentUser()
     navigate('/')

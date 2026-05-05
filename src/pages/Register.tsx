@@ -8,16 +8,17 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router'
 import { toast } from 'sonner'
-import { useLazyGetCurrentUserQuery, useRegisterMutation } from '@/reducers/auth.api'
+import { useGetCurrentUserQuery, useRegisterMutation } from '@/reducers/auth.api'
 import { notesApi } from '@/reducers/notes.api'
 import { useAppDispatch } from '@/hooks'
+import { setAccessToken } from '@/reducers/auth.slice'
 
 type RegisterFieldValues = z.infer<typeof RegisterFormSchema>
 
 export const Register = () => {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
-  const [getCurrentUser] = useLazyGetCurrentUserQuery()
+  const { refetch: refetchCurrentUser } = useGetCurrentUserQuery()
   const [register, { isLoading: isRegistrationPending }] = useRegisterMutation()
 
   const { control, handleSubmit, formState } = useForm<z.infer<typeof RegisterFormSchema>>({
@@ -39,8 +40,9 @@ export const Register = () => {
     }
 
     toast.success('User created')
+    dispatch(setAccessToken(res.data.accessToken))
     dispatch(notesApi.util.resetApiState())
-    await getCurrentUser()
+    await refetchCurrentUser()
     navigate('/')
   }
 
