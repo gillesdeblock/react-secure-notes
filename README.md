@@ -1,73 +1,53 @@
-# React + TypeScript + Vite
+# secure-notes
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A single-page application for managing notes with rich text editing and bearer token authentication.
 
-Currently, two official plugins are available:
+## Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **React** + **TypeScript**
+- **Vite** — bundler
+- **Tailwind CSS v4** — configured inline via Vite plugin
+- **shadcn/ui** (new-york style) — UI component library
+- **Lexical** — rich text editor
+- **Redux Toolkit** — UI state
+- **RTK Query** — server state & caching
+- **React Router** — routing
+- **react-hook-form** + **Zod** — form validation
 
-## React Compiler
+## Auth
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Bearer token authentication with short-lived access tokens (stored in Redux) and longer-lived refresh tokens (httpOnly cookies). Token refresh and redirect logic is handled transparently in `src/lib/auth.ts`. Unauthenticated users are redirected to `/login` by `AuthGate`, except on public routes (`/login`, `/register`).
 
-## Expanding the ESLint configuration
+## Getting Started
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+| Script            | Description                         |
+| ----------------- | ----------------------------------- |
+| `npm run dev`     | Start development server            |
+| `npm run build`   | Type-check and build for production |
+| `npm run preview` | Preview the production build        |
+| `npm run lint`    | Run ESLint                          |
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Project Structure
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+src/
+  App.tsx
+  store.ts
+  components/
+    *.tsx              # feature-level smart components
+    editor/            # Lexical subsystem (plugins, toolbar)
+    ui/                # shadcn primitives
+  hooks/
+  lib/                 # utils, auth base query
+  pages/               # route pages (Login, Register, Dashboard)
+  providers/           # React context providers
+  reducers/            # Redux slices and RTK Query APIs
+  schemas/             # Zod form schemas
+  selectors/           # Redux selectors
+  types/
 ```
