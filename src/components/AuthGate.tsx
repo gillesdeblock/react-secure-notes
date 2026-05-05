@@ -1,17 +1,20 @@
 import { useGetCurrentUserQuery } from '@/reducers/auth.api'
 import { Loader2Icon } from 'lucide-react'
 import { useEffect } from 'react'
-import { useNavigate } from 'react-router'
+import { useLocation, useNavigate } from 'react-router'
+
+const PUBLIC_ROUTES = ['/login', '/register']
 
 export function AuthGate({ children }: React.PropsWithChildren) {
   const navigate = useNavigate()
+  const { pathname } = useLocation()
   const { isLoading, isError } = useGetCurrentUserQuery()
 
   useEffect(() => {
-    if (!isLoading && isError) {
+    if (!isLoading && isError && !PUBLIC_ROUTES.includes(pathname)) {
       navigate('/login')
     }
-  }, [isLoading, isError])
+  }, [isLoading, isError, pathname])
 
   if (isLoading) {
     return (

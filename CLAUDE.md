@@ -16,8 +16,10 @@ SPA for managing notes securely.
 
 ## Architecture
 
-We use cookie-based auth, using refresh tokens (longer TTL) and access tokens (short TTL).
-Retries and redirect logic lives in `baseQueryWithReauth` (see `src/reducers/auth.api.ts`).
+We use bearer token auth, with refresh tokens (longer TTL) stored in httpOnly cookies and short-lived access tokens kept in Redux state.
+Retries and redirect logic lives in `baseQueryWithReauth` (see `src/lib/auth.ts`).
+
+`AuthGate` (`src/components/AuthGate.tsx`) wraps the whole app and redirects unauthenticated users to `/login`, except for routes listed in `PUBLIC_ROUTES` (`/login`, `/register`). Add any new public route there.
 
 ### State management
 
